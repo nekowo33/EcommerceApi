@@ -1,0 +1,135 @@
+package com.ws101.novio.EcommerceApi.controller;
+
+import com.ws101.novio.EcommerceApi.model.Product;
+import com.ws101.novio.EcommerceApi.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * REST controller for managing products in the e-commerce API.
+ *
+ * Handles HTTP requests and delegates business logic to the ProductService.
+ * This controller maps to the /api/v1/products base path.
+ *
+ * @author Cosino, Vivian Faith C.
+ * @see ProductService
+ */
+@RestController
+@RequestMapping("/api/v1/products")
+public class ProductController {
+
+    @Autowired
+    private ProductService productService;
+
+    /**
+     * Retrieves all products from the catalog.
+     *
+     * @return ResponseEntity containing a list of all products with 200 OK status.
+     */
+    @GetMapping
+    public ResponseEntity<List<Product>> getAllProducts() {
+        List<Product> products = productService.getAllProducts();
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+
+    /**
+     * Retrieves a single product by its unique ID.
+     *
+     * @param id the unique identifier of the product to retrieve.
+     * @return ResponseEntity containing the product with 200 OK, or 404 if not found.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> getProductById(@PathVariable int id) {
+        Product product = productService.getProductById(id);
+
+        if (product != null) {
+            return new ResponseEntity<>(product, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Filters products by a specified criteria and value.
+     *
+     * @param filterType the criteria to filter by (e.g., name, category, price).
+     * @param filterValue the value to match against the filter type.
+     * @return ResponseEntity containing a list of matching products with 200 OK.
+     */
+    @GetMapping("/filter")
+    public ResponseEntity<List<Product>> filterProducts(
+            @RequestParam String filterType,
+            @RequestParam String filterValue) {
+        List<Product> filteredProducts = productService.filterProducts(filterType, filterValue);
+        return new ResponseEntity<>(filteredProducts, HttpStatus.OK);
+    }
+
+    /**
+     * Creates a new product in the catalog.
+     *
+     * @param product the product data received from the request body.
+     * @return ResponseEntity containing the created product with 201 Created status.
+     */
+    @PostMapping
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        Product createdProduct = productService.createProduct(product);
+        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+    }
+
+    /**
+     * Replaces an existing product entirely with new data.
+     *
+     * @param id the unique identifier of the product to replace.
+     * @param product the new product data to replace the existing one.
+     * @return ResponseEntity containing the updated product with 200 OK, or 404 if not found.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product product) {
+        Product updatedProduct = productService.updateProduct(id, product);
+
+        if (updatedProduct != null) {
+            return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Partially updates an existing product with the provided fields.
+     *
+     * @param id the unique identifier of the product to update.
+     * @param product the product data containing only the fields to update.
+     * @return ResponseEntity containing the updated product with 200 OK, or 404 if not found.
+     */
+    @PatchMapping("/{id}")
+    public ResponseEntity<Product> partialUpdateProduct(@PathVariable int id, @RequestBody Product product) {
+        Product updatedProduct = productService.partialUpdateProduct(id, product);
+
+        if (updatedProduct != null) {
+            return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Removes a product from the catalog by its ID.
+     *
+     * @param id the unique identifier of the product to delete.
+     * @return ResponseEntity with 204 No Content if deleted, or 404 if not found.
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
+        boolean deleted = productService.deleteProduct(id);
+
+        if (deleted) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+}
