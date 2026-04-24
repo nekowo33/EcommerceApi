@@ -1,6 +1,7 @@
 package com.ws101.novio.EcommerceApi.service;
 
 import com.ws101.novio.EcommerceApi.model.Product;
+import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
  *
  * @author Novio, Mariel Kimberly B.
  */
+@Service
 public class ProductService {
 
     // In-memory storage for products using ArrayList
