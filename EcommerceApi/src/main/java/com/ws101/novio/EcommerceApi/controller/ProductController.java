@@ -1,5 +1,6 @@
 package com.ws101.novio.EcommerceApi.controller;
 
+import com.ws101.novio.EcommerceApi.exception.ProductNotFoundException;
 import com.ws101.novio.EcommerceApi.model.Product;
 import com.ws101.novio.EcommerceApi.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,8 @@ import java.util.List;
  * REST controller for managing products in the e-commerce API.
  *
  * Handles HTTP requests and delegates business logic to the ProductService.
- * This controller maps to the /api/v1/products base path.
+ * This controller maps to the /api/v1/products base path and performs
+ * basic input validation before passing data to the service layer.
  *
  * @author Cosino, Vivian Faith C.
  * @see ProductService
@@ -40,17 +42,18 @@ public class ProductController {
      * Retrieves a single product by its unique ID.
      *
      * @param id the unique identifier of the product to retrieve.
-     * @return ResponseEntity containing the product with 200 OK, or 404 if not found.
+     * @return ResponseEntity containing the product with 200 OK status.
+     * @throws ProductNotFoundException if no product exists with the given ID.
      */
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable int id) {
         Product product = productService.getProductById(id);
 
-        if (product != null) {
-            return new ResponseEntity<>(product, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (product == null) {
+            throw new ProductNotFoundException("Product with ID " + id + " not found.");
         }
+
+        return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
     /**
@@ -81,55 +84,58 @@ public class ProductController {
     }
 
     /**
-     * Replaces an existing product entirely with new data.
+     * Replaces an existing product entirely with new data (PUT).
      *
      * @param id the unique identifier of the product to replace.
      * @param product the new product data to replace the existing one.
-     * @return ResponseEntity containing the updated product with 200 OK, or 404 if not found.
+     * @return ResponseEntity containing the updated product with 200 OK status.
+     * @throws ProductNotFoundException if no product exists with the given ID.
      */
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product product) {
         Product updatedProduct = productService.updateProduct(id, product);
 
-        if (updatedProduct != null) {
-            return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (updatedProduct == null) {
+            throw new ProductNotFoundException("Product with ID " + id + " not found.");
         }
+
+        return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
     }
 
     /**
-     * Partially updates an existing product with the provided fields.
+     * Partially updates an existing product with the provided fields (PATCH).
      *
      * @param id the unique identifier of the product to update.
      * @param product the product data containing only the fields to update.
-     * @return ResponseEntity containing the updated product with 200 OK, or 404 if not found.
+     * @return ResponseEntity containing the updated product with 200 OK status.
+     * @throws ProductNotFoundException if no product exists with the given ID.
      */
     @PatchMapping("/{id}")
     public ResponseEntity<Product> partialUpdateProduct(@PathVariable int id, @RequestBody Product product) {
         Product updatedProduct = productService.partialUpdateProduct(id, product);
 
-        if (updatedProduct != null) {
-            return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (updatedProduct == null) {
+            throw new ProductNotFoundException("Product with ID " + id + " not found.");
         }
+
+        return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
     }
 
     /**
      * Removes a product from the catalog by its ID.
      *
      * @param id the unique identifier of the product to delete.
-     * @return ResponseEntity with 204 No Content if deleted, or 404 if not found.
+     * @return ResponseEntity with 204 No Content if successfully deleted.
+     * @throws ProductNotFoundException if no product exists with the given ID.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
         boolean deleted = productService.deleteProduct(id);
 
-        if (deleted) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (!deleted) {
+            throw new ProductNotFoundException("Product with ID " + id + " not found.");
         }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
