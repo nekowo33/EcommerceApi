@@ -1,5 +1,6 @@
 package com.ws101.novio.EcommerceApi.controller;
 
+import com.ws101.novio.EcommerceApi.exception.InvalidInputException;
 import com.ws101.novio.EcommerceApi.exception.ProductNotFoundException;
 import com.ws101.novio.EcommerceApi.model.Product;
 import com.ws101.novio.EcommerceApi.service.ProductService;
@@ -79,6 +80,7 @@ public class ProductController {
      */
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        validateProduct(product);
         Product createdProduct = productService.createProduct(product);
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
@@ -93,6 +95,7 @@ public class ProductController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product product) {
+        validateProduct(product);
         Product updatedProduct = productService.updateProduct(id, product);
 
         if (updatedProduct == null) {
@@ -137,5 +140,29 @@ public class ProductController {
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    /**
+     * Validates the product data before creating or updating.
+     *
+     * Checks that required fields are present and values are within
+     * acceptable ranges. Throws InvalidInputException if validation fails.
+     *
+     * @param product the Product to validate.
+     * @throws InvalidInputException if any field fails validation.
+     */
+    private void validateProduct(Product product) {
+        if (product.getName() == null || product.getName().trim().length() < 2) {
+            throw new InvalidInputException("Product name is required and must be at least 2 characters.");
+        }
+        if (product.getPrice() <= 0) {
+            throw new InvalidInputException("Product price must be a positive number.");
+        }
+        if (product.getCategory() == null || product.getCategory().trim().isEmpty()) {
+            throw new InvalidInputException("Product category is required.");
+        }
+        if (product.getStockQuantity() < 0) {
+            throw new InvalidInputException("Stock quantity must be non-negative.");
+        }
     }
 }
