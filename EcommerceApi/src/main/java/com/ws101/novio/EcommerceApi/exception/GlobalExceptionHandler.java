@@ -5,6 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
+
 /**
  * Global exception handler for the e-commerce API.
  *
@@ -45,6 +48,38 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles EntityNotFoundException and returns a 404 Not Found response.
+     *
+     * @param ex the EntityNotFoundException that was thrown.
+     * @return ResponseEntity containing the error details with 404 status.
+     */
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                "Entity not found: " + ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Handles DataIntegrityViolationException and returns a 400 Bad Request response.
+     *
+     * @param ex the DataIntegrityViolationException that was thrown.
+     * @return ResponseEntity containing the error details with 400 status.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Data Integrity Violation",
+                "Could not process the request due to data integrity constraints."
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
