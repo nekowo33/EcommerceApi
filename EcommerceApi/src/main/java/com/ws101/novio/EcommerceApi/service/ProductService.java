@@ -1,15 +1,18 @@
 package com.ws101.novio.EcommerceApi.service;
 
 import com.ws101.novio.EcommerceApi.model.Product;
-import com.ws101.novio.EcommerceApi.model.Category;
+import com.ws101.novio.EcommerceApi.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service class for product-related operations.
  *
- * Manages product data using in-memory storage with a List.
+ * Manages product data using Spring Data JPA.
  * Provides business logic for CRUD operations and filtering.
  *
  * @author Novio, Mariel Kimberly B.
@@ -17,43 +20,16 @@ import java.util.List;
 @Service
 public class ProductService {
 
-    // In-memory storage for products using ArrayList
-    private List<Product> productList = new ArrayList<>();
-
-    // Counter for generating unique IDs
-    private int idCounter = 1;
+    @Autowired
+    private ProductRepository productRepository;
 
     /**
-     * Constructor that initializes the product list with sample data.
-     */
-    public ProductService() {
-        initializeSampleData();
-    }
-
-    /**
-     * Initializes the product list with 10 sample products.
-     */
-    private void initializeSampleData() {
-        Category flowersCategory = new Category(1, "Flowers", null);
-        productList.add(new Product(idCounter++, "Roses Bouquet", "A classic bouquet of fresh red roses.", 1200.00, flowersCategory, 50, "https://i.pinimg.com/736x/5a/aa/d2/5aaad243a6cc3e7e3c1f6669b50b260d.jpg"));
-        productList.add(new Product(idCounter++, "Tulips Bouquet", "A beautiful bouquet of fresh tulips.", 1800.00, flowersCategory, 40, "https://i.pinimg.com/736x/f8/6c/7b/f86c7b3f61c7b5409d462498f05bb11b.jpg"));
-        productList.add(new Product(idCounter++, "Lilies Bouquet", "A stunning bouquet of fresh lilies.", 2000.00, flowersCategory, 30, "https://i.pinimg.com/736x/98/4a/a6/984aa6c4765025d0abac3a00fae15d0d.jpg"));
-        productList.add(new Product(idCounter++, "Sunflower Bouquet", "Bright and cheerful sunflower bouquet.", 1500.00, flowersCategory, 35, "https://i.pinimg.com/1200x/e7/74/ac/e774ace7f45a08a7f1573d42a0824dc0.jpg"));
-        productList.add(new Product(idCounter++, "Daisy Bouquet", "A sweet and simple daisy bouquet.", 900.00, flowersCategory, 60, "https://i.pinimg.com/1200x/e1/dd/06/e1dd06c81bde52961dfa25c2c9061fc1.jpg"));
-        productList.add(new Product(idCounter++, "Orchid Bouquet", "An elegant bouquet of fresh orchids.", 2500.00, flowersCategory, 20, "https://i.pinimg.com/736x/5a/83/0f/5a830f1e2f75fc3bc3a8151b8918670e.jpg"));
-        productList.add(new Product(idCounter++, "Peony Bouquet", "A romantic bouquet of fresh peonies.", 2200.00, flowersCategory, 25, "https://i.pinimg.com/736x/c4/cf/a6/c4cfa6cf64212db4966cd5d1b801288c.jpg"));
-        productList.add(new Product(idCounter++, "Lavender Bouquet", "A calming bouquet of fresh lavender.", 1300.00, flowersCategory, 45, "https://i.pinimg.com/1200x/19/e1/7b/19e17b26ed6a194a3d5f8bbcfe94a31e.jpg"));
-        productList.add(new Product(idCounter++, "Mixed Bouquet", "A colorful mix of seasonal flowers.", 1700.00, flowersCategory, 55, "https://i.pinimg.com/1200x/47/c5/e0/47c5e08d73d917717ec2565f4960724b.jpg"));
-        productList.add(new Product(idCounter++, "Carnation Bouquet", "A delicate bouquet of fresh carnations.", 1300.00, flowersCategory, 50, "https://i.pinimg.com/736x/7f/e0/d5/7fe0d5ac477b225b9602368357690027.jpg"));
-    }
-
-    /**
-     * Retrieves all products from the list.
+     * Retrieves all products from the database.
      *
      * @return a List containing all products.
      */
     public List<Product> getAllProducts() {
-        return productList;
+        return productRepository.findAll();
     }
 
     /**
@@ -63,25 +39,17 @@ public class ProductService {
      * @return the Product with the matching ID, or null if not found.
      */
     public Product getProductById(int id) {
-        for (Product product : productList) {
-            if (product.getId() == id) {
-                return product;
-            }
-        }
-        return null;
+        return productRepository.findById(id).orElse(null);
     }
 
     /**
-     * Creates a new product and adds it to the list.
+     * Creates a new product and saves it to the database.
      *
-     * @param product the Product object to be added.
-     * @return the newly created Product with its assigned ID.
+     * @param product the Product object to be saved.
+     * @return the newly created Product.
      */
     public Product createProduct(Product product) {
-        // Assign a unique ID using the counter
-        product.setId(idCounter++);
-        productList.add(product);
-        return product;
+        return productRepository.save(product);
     }
 
     /**
@@ -92,12 +60,9 @@ public class ProductService {
      * @return the updated Product, or null if not found.
      */
     public Product updateProduct(int id, Product updatedProduct) {
-        for (int i = 0; i < productList.size(); i++) {
-            if (productList.get(i).getId() == id) {
-                updatedProduct.setId(id);
-                productList.set(i, updatedProduct);
-                return updatedProduct;
-            }
+        if (productRepository.existsById(id)) {
+            updatedProduct.setId(id);
+            return productRepository.save(updatedProduct);
         }
         return null;
     }
@@ -110,28 +75,32 @@ public class ProductService {
      * @return the partially updated Product, or null if not found.
      */
     public Product partialUpdateProduct(int id, Product updatedProduct) {
-        for (Product product : productList) {
-            if (product.getId() == id) {
-                if (updatedProduct.getName() != null) product.setName(updatedProduct.getName());
-                if (updatedProduct.getDescription() != null) product.setDescription(updatedProduct.getDescription());
-                if (updatedProduct.getPrice() > 0) product.setPrice(updatedProduct.getPrice());
-                if (updatedProduct.getCategory() != null) product.setCategory(updatedProduct.getCategory());
-                if (updatedProduct.getStockQuantity() >= 0) product.setStockQuantity(updatedProduct.getStockQuantity());
-                if (updatedProduct.getImageUrl() != null) product.setImageUrl(updatedProduct.getImageUrl());
-                return product;
-            }
+        Optional<Product> existingProductOpt = productRepository.findById(id);
+        if (existingProductOpt.isPresent()) {
+            Product product = existingProductOpt.get();
+            if (updatedProduct.getName() != null) product.setName(updatedProduct.getName());
+            if (updatedProduct.getDescription() != null) product.setDescription(updatedProduct.getDescription());
+            if (updatedProduct.getPrice() > 0) product.setPrice(updatedProduct.getPrice());
+            if (updatedProduct.getCategory() != null) product.setCategory(updatedProduct.getCategory());
+            if (updatedProduct.getStockQuantity() >= 0) product.setStockQuantity(updatedProduct.getStockQuantity());
+            if (updatedProduct.getImageUrl() != null) product.setImageUrl(updatedProduct.getImageUrl());
+            return productRepository.save(product);
         }
         return null;
     }
 
     /**
-     * Deletes a product from the list by its ID.
+     * Deletes a product from the database by its ID.
      *
      * @param id the unique identifier of the product to delete.
      * @return true if the product was deleted, false if not found.
      */
     public boolean deleteProduct(int id) {
-        return productList.removeIf(product -> product.getId() == id);
+        if (productRepository.existsById(id)) {
+            productRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -142,22 +111,18 @@ public class ProductService {
      * @return a List of products matching the filter criteria.
      */
     public List<Product> filterProducts(String filterType, String filterValue) {
-        List<Product> filteredList = new ArrayList<>();
-
-        for (Product product : productList) {
-            if (filterType.equalsIgnoreCase("name") &&
-                    product.getName().toLowerCase().contains(filterValue.toLowerCase())) {
-                filteredList.add(product);
-            } else if (filterType.equalsIgnoreCase("category") &&
-                    product.getCategory() != null &&
-                    product.getCategory().getName() != null &&
-                    product.getCategory().getName().equalsIgnoreCase(filterValue)) {
-                filteredList.add(product);
-            } else if (filterType.equalsIgnoreCase("price") &&
-                    product.getPrice() <= Double.parseDouble(filterValue)) {
-                filteredList.add(product);
+        if (filterType.equalsIgnoreCase("name")) {
+            return productRepository.findByNameContainingIgnoreCase(filterValue);
+        } else if (filterType.equalsIgnoreCase("category")) {
+            return productRepository.findByCategoryName(filterValue);
+        } else if (filterType.equalsIgnoreCase("price")) {
+            try {
+                double maxPrice = Double.parseDouble(filterValue);
+                return productRepository.findProductsByPriceRange(0, maxPrice);
+            } catch (NumberFormatException e) {
+                return new ArrayList<>();
             }
         }
-        return filteredList;
+        return new ArrayList<>();
     }
 }
