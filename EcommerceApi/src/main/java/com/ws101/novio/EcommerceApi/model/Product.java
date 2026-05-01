@@ -1,5 +1,6 @@
 package com.ws101.novio.EcommerceApi.model;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,19 +10,25 @@ import lombok.EqualsAndHashCode;
 
 /**
  * Represents a product in the e-commerce system.
+ * A Product has a Many-to-One relationship with Category,
+ * meaning many Products can belong to one Category.
  *
  * @author Novio, Mariel Kimberly B.
  */
+@Entity
+@Table(name = "products")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode
+@ToString(exclude = "category")
+@EqualsAndHashCode(exclude = "category")
 public class Product {
 
     /** Unique identifier for the product. */
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     /** Name of the product. */
     private String name;
@@ -33,7 +40,9 @@ public class Product {
     private double price;
 
     /** Category the product belongs to. */
-    private String category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     /** Number of items available in stock. */
     private int stockQuantity;

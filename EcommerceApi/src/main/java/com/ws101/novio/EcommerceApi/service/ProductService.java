@@ -1,6 +1,7 @@
 package com.ws101.novio.EcommerceApi.service;
 
 import com.ws101.novio.EcommerceApi.model.Product;
+import com.ws101.novio.EcommerceApi.model.Category;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,16 +34,17 @@ public class ProductService {
      * Initializes the product list with 10 sample products.
      */
     private void initializeSampleData() {
-        productList.add(new Product(idCounter++, "Roses Bouquet", "A classic bouquet of fresh red roses.", 1200.00, "Flowers", 50, "https://i.pinimg.com/736x/5a/aa/d2/5aaad243a6cc3e7e3c1f6669b50b260d.jpg"));
-        productList.add(new Product(idCounter++, "Tulips Bouquet", "A beautiful bouquet of fresh tulips.", 1800.00, "Flowers", 40, "https://i.pinimg.com/736x/f8/6c/7b/f86c7b3f61c7b5409d462498f05bb11b.jpg"));
-        productList.add(new Product(idCounter++, "Lilies Bouquet", "A stunning bouquet of fresh lilies.", 2000.00, "Flowers", 30, "https://i.pinimg.com/736x/98/4a/a6/984aa6c4765025d0abac3a00fae15d0d.jpg"));
-        productList.add(new Product(idCounter++, "Sunflower Bouquet", "Bright and cheerful sunflower bouquet.", 1500.00, "Flowers", 35, "https://i.pinimg.com/1200x/e7/74/ac/e774ace7f45a08a7f1573d42a0824dc0.jpg"));
-        productList.add(new Product(idCounter++, "Daisy Bouquet", "A sweet and simple daisy bouquet.", 900.00, "Flowers", 60, "https://i.pinimg.com/1200x/e1/dd/06/e1dd06c81bde52961dfa25c2c9061fc1.jpg"));
-        productList.add(new Product(idCounter++, "Orchid Bouquet", "An elegant bouquet of fresh orchids.", 2500.00, "Flowers", 20, "https://i.pinimg.com/736x/5a/83/0f/5a830f1e2f75fc3bc3a8151b8918670e.jpg"));
-        productList.add(new Product(idCounter++, "Peony Bouquet", "A romantic bouquet of fresh peonies.", 2200.00, "Flowers", 25, "https://i.pinimg.com/736x/c4/cf/a6/c4cfa6cf64212db4966cd5d1b801288c.jpg"));
-        productList.add(new Product(idCounter++, "Lavender Bouquet", "A calming bouquet of fresh lavender.", 1300.00, "Flowers", 45, "https://i.pinimg.com/1200x/19/e1/7b/19e17b26ed6a194a3d5f8bbcfe94a31e.jpg"));
-        productList.add(new Product(idCounter++, "Mixed Bouquet", "A colorful mix of seasonal flowers.", 1700.00, "Flowers", 55, "https://i.pinimg.com/1200x/47/c5/e0/47c5e08d73d917717ec2565f4960724b.jpg"));
-        productList.add(new Product(idCounter++, "Carnation Bouquet", "A delicate bouquet of fresh carnations.", 1300.00, "Flowers", 50, "https://i.pinimg.com/736x/7f/e0/d5/7fe0d5ac477b225b9602368357690027.jpg"));
+        Category flowersCategory = new Category(1, "Flowers", null);
+        productList.add(new Product(idCounter++, "Roses Bouquet", "A classic bouquet of fresh red roses.", 1200.00, flowersCategory, 50, "https://i.pinimg.com/736x/5a/aa/d2/5aaad243a6cc3e7e3c1f6669b50b260d.jpg"));
+        productList.add(new Product(idCounter++, "Tulips Bouquet", "A beautiful bouquet of fresh tulips.", 1800.00, flowersCategory, 40, "https://i.pinimg.com/736x/f8/6c/7b/f86c7b3f61c7b5409d462498f05bb11b.jpg"));
+        productList.add(new Product(idCounter++, "Lilies Bouquet", "A stunning bouquet of fresh lilies.", 2000.00, flowersCategory, 30, "https://i.pinimg.com/736x/98/4a/a6/984aa6c4765025d0abac3a00fae15d0d.jpg"));
+        productList.add(new Product(idCounter++, "Sunflower Bouquet", "Bright and cheerful sunflower bouquet.", 1500.00, flowersCategory, 35, "https://i.pinimg.com/1200x/e7/74/ac/e774ace7f45a08a7f1573d42a0824dc0.jpg"));
+        productList.add(new Product(idCounter++, "Daisy Bouquet", "A sweet and simple daisy bouquet.", 900.00, flowersCategory, 60, "https://i.pinimg.com/1200x/e1/dd/06/e1dd06c81bde52961dfa25c2c9061fc1.jpg"));
+        productList.add(new Product(idCounter++, "Orchid Bouquet", "An elegant bouquet of fresh orchids.", 2500.00, flowersCategory, 20, "https://i.pinimg.com/736x/5a/83/0f/5a830f1e2f75fc3bc3a8151b8918670e.jpg"));
+        productList.add(new Product(idCounter++, "Peony Bouquet", "A romantic bouquet of fresh peonies.", 2200.00, flowersCategory, 25, "https://i.pinimg.com/736x/c4/cf/a6/c4cfa6cf64212db4966cd5d1b801288c.jpg"));
+        productList.add(new Product(idCounter++, "Lavender Bouquet", "A calming bouquet of fresh lavender.", 1300.00, flowersCategory, 45, "https://i.pinimg.com/1200x/19/e1/7b/19e17b26ed6a194a3d5f8bbcfe94a31e.jpg"));
+        productList.add(new Product(idCounter++, "Mixed Bouquet", "A colorful mix of seasonal flowers.", 1700.00, flowersCategory, 55, "https://i.pinimg.com/1200x/47/c5/e0/47c5e08d73d917717ec2565f4960724b.jpg"));
+        productList.add(new Product(idCounter++, "Carnation Bouquet", "A delicate bouquet of fresh carnations.", 1300.00, flowersCategory, 50, "https://i.pinimg.com/736x/7f/e0/d5/7fe0d5ac477b225b9602368357690027.jpg"));
     }
 
     /**
@@ -147,7 +149,9 @@ public class ProductService {
                     product.getName().toLowerCase().contains(filterValue.toLowerCase())) {
                 filteredList.add(product);
             } else if (filterType.equalsIgnoreCase("category") &&
-                    product.getCategory().equalsIgnoreCase(filterValue)) {
+                    product.getCategory() != null &&
+                    product.getCategory().getName() != null &&
+                    product.getCategory().getName().equalsIgnoreCase(filterValue)) {
                 filteredList.add(product);
             } else if (filterType.equalsIgnoreCase("price") &&
                     product.getPrice() <= Double.parseDouble(filterValue)) {

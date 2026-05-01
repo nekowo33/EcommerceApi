@@ -158,7 +158,7 @@ public class ProductController {
         if (product.getPrice() <= 0) {
             throw new InvalidInputException("Product price must be a positive number.");
         }
-        if (product.getCategory() == null || product.getCategory().trim().isEmpty()) {
+        if (product.getCategory() == null || product.getCategory().getName() == null || product.getCategory().getName().trim().isEmpty()) {
             throw new InvalidInputException("Product category is required.");
         }
         if (product.getStockQuantity() < 0) {
