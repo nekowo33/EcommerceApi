@@ -22,19 +22,17 @@ public class WebConfig implements WebMvcConfigurer {
      * for all API endpoints with the required HTTP methods and headers.
      *
      * @param registry the CorsRegistry to add mappings to.
-     */ 
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                // Allow requests from Live Server frontend
+        registry.addMapping("/**")
                 .allowedOrigins(
                         "http://localhost:5500",
                         "http://127.0.0.1:5500"
                 )
-                // Allow these HTTP methods as required by the PDF
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                // Allow these headers as required by the PDF
-                .allowedHeaders("Authorization", "Content-Type")
+                .allowedHeaders("Authorization", "Content-Type", "X-CSRF-TOKEN")
+                .exposedHeaders("Set-Cookie")
                 .allowCredentials(true);
     }
 }
