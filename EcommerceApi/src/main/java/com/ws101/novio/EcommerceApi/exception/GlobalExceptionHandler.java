@@ -4,6 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Global exception handler for the e-commerce API.
@@ -63,5 +66,29 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred: " + ex.getMessage()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Handles MethodArgumentNotValidException thrown when @Valid fails.
+     * Returns a 400 Bad Request with specific validation error messages.
+     *
+     * @param ex the MethodArgumentNotValidException that was thrown.
+     * @return ResponseEntity containing the validation errors with 400 status.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+        // Collect all validation error messages into a list
+        List<String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> "Field '" + error.getField() + "': " + error.getDefaultMessage())
+                .collect(Collectors.toList());
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                errors.toString()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }
